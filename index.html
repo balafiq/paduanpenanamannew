@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tanya Pakej Teknologi Tanaman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a calm extension officer: plain words, every answer traced back to one crop's own book.
+   IDEA: a shelf of field guides; pick one book (a crop) and ask it, and only it.
+   PICTURE: the open conversation, framed by the chosen crop's cover card with its own colour.
+   COLOUR and TYPE: leaf green #2c4a22 frame, warm paper ground, each crop brings one accent; Fraunces titles, Plus Jakarta Sans text.
+   LAYOUT: left shelf of crops beside the chat above 860px; below that the shelf becomes a scrolling row over the chat. */
+:root{color-scheme:light dark;
+ --bg:light-dark(#f7f4ea,#11160e);--panel:light-dark(#fffdf7,#182014);--ink:light-dark(#1c2315,#edf0e3);--soft:light-dark(#5d6652,#a5ae98);
+ --line:light-dark(#e4dfcd,#2b3623);--leaf:light-dark(#2c4a22,#1d3016);--leafink:#f4f2e2;--acc:#e0b12a;--accsoft:light-dark(#fbf0c9,#3a3217)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Plus Jakarta Sans",system-ui,sans-serif;display:flex;flex-direction:column;overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+button:focus-visible,textarea:focus-visible,a:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.app{flex:1;display:grid;grid-template-columns:220px minmax(0,1fr);min-height:0}
+aside{border-right:1px solid var(--line);background:var(--panel);padding:14px 12px;overflow-y:auto}
+#crops{display:flex;flex-direction:column;gap:6px}
+.crop{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:none;border:1px solid transparent;border-radius:14px;padding:10px;color:var(--ink);min-height:56px}
+.crop:hover{background:var(--bg)}
+.crop[aria-current=true]{background:var(--bg);border-color:var(--line);box-shadow:inset 4px 0 0 var(--c)}
+.crop b{display:block;font-weight:600}.crop small{display:block;color:var(--soft);font-size:13px;line-height:1.3}
+.ico{flex:none;width:36px;height:36px}
+.chat{display:flex;flex-direction:column;min-height:0}
+.cover{display:flex;gap:14px;align-items:center;padding:14px max(4vw,16px);border-bottom:1px solid var(--line);background:linear-gradient(90deg,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%)}
+.cover .ico{width:44px;height:44px}
+.cover h2{font:600 clamp(22px,3vw,28px)/1.1 Fraunces,Georgia,serif;margin:0}
+.cover p{margin:2px 0 0;color:var(--soft);font-size:13px}
+#clear{margin-left:auto;flex:none;font-size:14px;background:none;border:1px solid var(--line);color:var(--soft);border-radius:999px;padding:6px 14px;min-height:36px}#clear:hover{color:var(--ink);border-color:var(--soft)}#clear[hidden]{display:none}
+main{flex:1;overflow-y:auto;padding:24px max(4vw,16px) 8px}
+.log{max-width:780px;margin:0 auto}
+.msg{display:flex;margin:0 0 18px}.msg.u{justify-content:flex-end}
+.bub{padding:12px 16px;border-radius:18px;max-width:86%;overflow-wrap:anywhere}
+.u .bub{background:var(--leaf);color:var(--leafink);border-bottom-right-radius:6px}
+.a .bub{background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:6px;max-width:100%}
+.bub p{margin:0 0 8px}.bub p:last-child{margin-bottom:0}.bub ul,.bub ol{margin:4px 0 8px;padding-left:22px}
+.bub.no{background:var(--accsoft);border-color:transparent}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--line);border-radius:10px}
+.tbl table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.4}
+.tbl th,.tbl td{padding:8px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+.tbl th{background:color-mix(in srgb,var(--acc) 14%,var(--panel));font-weight:600}
+.tbl tbody tr:nth-child(even){background:color-mix(in srgb,var(--line) 30%,transparent)}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.typing{color:var(--soft);font-style:italic}
+.foot{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;padding-top:10px;border-top:1px dashed var(--line);font-size:13px;color:var(--soft)}
+.foot .pg{font-weight:600;font-size:13px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:4px 12px;min-height:32px}
+.foot .pg:hover,.foot .pg[aria-expanded=true]{background:var(--acc);border-color:var(--acc);color:#231d05}
+.foot .cp{margin-left:auto;background:none;border:0;color:var(--soft);font-size:13px;text-decoration:underline;min-height:32px}
+.ex{margin-top:10px;padding:12px 14px;border-radius:10px;background:var(--bg);font-size:14px;white-space:pre-wrap;max-height:260px;overflow:auto;color:var(--soft)}
+.ex strong{display:block;color:var(--ink);margin-bottom:6px}.ex strong a{color:inherit;font-weight:500}.empty small{display:inline-block;margin-top:6px;font-size:13px}
+mark{background:var(--accsoft);color:var(--ink);border-radius:3px}
+.empty{text-align:center;padding:clamp(12px,6vh,56px) 0 12px}
+.empty h3{font:600 24px/1.2 Fraunces,Georgia,serif;margin:0 0 18px;text-wrap:balance}
+.empty p{color:var(--soft);margin:-8px auto 18px;max-width:500px;font-size:13px}
+.chips{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:10px;text-align:left}
+.chips button{font-size:15px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:12px 14px;min-height:48px;text-align:left}
+.chips button:hover{border-color:var(--acc)}
+.comp{border-top:1px solid var(--line);background:var(--panel);padding:12px max(4vw,16px) 14px}
+form{max-width:780px;margin:0 auto;display:flex;gap:8px;align-items:flex-end}
+textarea{flex:1;font-size:16px;line-height:1.4;font-family:inherit;resize:none;border:1.5px solid var(--line);border-radius:14px;padding:11px 14px;background:var(--bg);color:var(--ink);min-height:48px;max-height:150px}
+#send{flex:none;border:0;border-radius:14px;background:var(--leaf);color:var(--leafink);font-weight:600;font-size:16px;padding:0 22px;min-height:48px}
+#send.stop{background:var(--acc);color:#231d05}
+.note{max-width:780px;margin:6px auto 0;font-size:13px;color:var(--soft)}.note:empty{display:none}
+@media(prefers-reduced-motion:no-preference){.msg{animation:in .22s ease-out}@keyframes in{from{transform:translateY(8px)}}}
+@media(max-width:860px){
+ .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+ aside{border-right:0;border-bottom:1px solid var(--line);padding:10px 12px;overflow:visible}
+ #crops{flex-direction:row;overflow-x:auto;scrollbar-width:none}#crops::-webkit-scrollbar{display:none}
+ .crop{width:auto;flex:none;min-height:48px;padding:6px 12px 6px 8px}.crop small{display:none}.ico{width:30px;height:30px}
+ .crop[aria-current=true]{box-shadow:inset 0 -3px 0 var(--c)}
+}
+@media(max-width:600px){.cover{padding:12px 16px}.cover .ico{width:38px;height:38px}.bub{max-width:94%}#send{padding:0 16px}}
+</style>
+</head>
+<body>
+
+<div class="app">
+ <aside><nav id="crops" aria-label="Tanaman"></nav></aside>
+ <section class="chat">
+  <div class="cover" id="cover"></div>
+  <main id="main"><div id="logs"></div></main>
+  <div class="comp">
+   <form id="f"><textarea id="q" rows="1" placeholder="Tanya…" aria-label="Soalan"></textarea><button id="send" type="submit">Hantar</button></form>
+   <div class="note" id="status" role="status"></div>
+  </div>
+ </section>
+</div>
+
+<script src="config.js"></script>
+<script>
+{
+const MAAF = "Maaf, saya tidak dapat menjawab soalan tersebut.";
+const $ = id => document.getElementById(id);
+const main = $("main"), qEl = $("q"), sendBtn = $("send"), statusEl = $("status");
+let crops = [], cur = null, sample, ctrl = null; // sample: undefined = belum diketahui, null = tiada
+const state = {}; // id -> {pages, idx, history, log, loading}
+
+const STOP = new Set("dan yang untuk di ke dari pada dengan adalah ini itu atau dalam akan oleh juga tidak boleh bagi apa apakah bagaimana berapa berapakah mengapa kenapa bila bilakah siapa mana manakah saya anda kami kita ia sebagai secara lebih telah serta perlu dapat ada tersebut setiap antara kepada iaitu mahu ingin tahu tentang mengenai sila beri terangkan jelaskan the of and".split(" "));
+const tok = s => (s.toLowerCase().normalize("NFKD").match(/[a-z0-9]+/g) || []).filter(w => w.length > 1 && !STOP.has(w));
+const stem = w => w.length > 5 ? w.replace(/^(mem|men|meng|meny|pen|peng|peny|pem|ber|ter|di)(?=[a-z]{4})/, "").replace(/(kan|an|nya|lah|i)$/, "") : w;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+function buildIndex(pages) {
+  const df = new Map(); let total = 0;
+  const docs = pages.map(p => { const tf = new Map(), ws = tok(p.t).map(stem); total += ws.length;
+    ws.forEach(w => tf.set(w, (tf.get(w) || 0) + 1)); tf.forEach((_, w) => df.set(w, (df.get(w) || 0) + 1));
+    return { p: p.p, t: p.t, low: p.t.toLowerCase(), tf, len: ws.length }; });
+  return { docs, df, avg: total / Math.max(1, docs.length), N: docs.length };
+}
+function search(idx, query, k = 6) {
+  const terms = [...new Set(tok(query).map(stem))]; if (!terms.length) return [];
+  const w = tok(query), ph = w.slice(1).map((x, i) => w[i] + " " + x);
+  return idx.docs.map(d => { let s = 0;
+    for (const t of terms) { const f = d.tf.get(t); if (!f) continue; const n = idx.df.get(t);
+      s += Math.log(1 + (idx.N - n + .5) / (n + .5)) * f * 2.2 / (f + 1.2 * (.25 + .75 * d.len / idx.avg)); }
+    for (const x of ph) if (d.low.includes(x)) s += 2;
+    return { d, s }; }).filter(x => x.s > 0).sort((a, b) => b.s - a.s).slice(0, k).map(x => x.d);
+}
+
+function icon(c, cls = "ico") {
+  const col = c.warna || "#7a9a3c", shapes = {
+    berduri: `<defs><pattern id="t-${c.id}" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M3.5 0 7 7H0Z" fill="#000" opacity=".18"/></pattern></defs><ellipse cx="24" cy="26" rx="17" ry="19" fill="#6f8f3e"/><ellipse cx="24" cy="26" rx="17" ry="19" fill="url(#t-${c.id})"/><path d="M16 22Q24 13 32 22Q35 35 24 40Q13 35 16 22Z" fill="${col}"/><path d="M24 7Q23 3 26 1" stroke="#4a3418" stroke-width="3" fill="none"/>`,
+    bujur: `<path d="M24 10C34 12 38 24 36 33C34 43 22 46 15 40C9 34 13 22 18 16Z" fill="${col}"/><path d="M15 18Q20 24 18 36" stroke="#fff" stroke-width="2.5" fill="none" opacity=".35" stroke-linecap="round"/><path d="M17 15Q22 4 32 9Q27 10 24 14Z" fill="#5a8a3a"/><path d="M24 10Q27 4 30 2" stroke="#3f6a2a" stroke-width="2.5" fill="none"/>`,
+    bulat: `<circle cx="24" cy="28" r="16" fill="${col}"/><path d="M15 22Q19 16 25 16" stroke="#fff" stroke-width="2.5" fill="none" opacity=".4" stroke-linecap="round"/><path d="M24 12Q22 5 26 2" stroke="#4a3418" stroke-width="2.5" fill="none"/><path d="M25 10Q33 3 40 8Q32 13 25 10Z" fill="#5a8a3a"/>`,
+    panjang: `<path d="M17 12C13 18 14 28 20 35C25 41 33 45 40 46C35 41 30 35 27 27C25 21 24 15 22 12Z" fill="${col}"/><path d="M18 17Q18 26 23 33" stroke="#fff" stroke-width="2.5" fill="none" opacity=".35" stroke-linecap="round"/><path d="M14 12Q19 8 25 12Q20 14 14 12Z" fill="#4f8a35"/><path d="M19 10Q17 5 20 2" stroke="#3f6a2a" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+    daun: `<path d="M24 44C24 30 26 18 38 8C40 24 34 36 24 44Z" fill="${col}"/><path d="M24 44C24 34 18 24 8 20C8 32 14 40 24 44Z" fill="#5a8a3a"/><path d="M24 44V30" stroke="#3f6a2a" stroke-width="2.5"/>`
+  };
+  return `<svg class="${cls}" viewBox="0 0 48 48" aria-hidden="true">${shapes[c.bentuk] || shapes.daun}</svg>`;
+}
+
+const inl = t => t.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+function table(rows) {
+  const cells = r => r.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(c => c.trim());
+  const isSep = r => cells(r).every(c => /^:?-{2,}:?$/.test(c));
+  const head = rows.length > 1 && isSep(rows[1]) ? cells(rows[0]) : null;
+  const body = rows.filter((r, i) => !isSep(r) && !(head && i === 0)).map(cells);
+  const n = Math.max(head ? head.length : 0, ...body.map(r => r.length));
+  const td = (c, tag) => `<${tag}${tag === "td" && /^[\d.,\s%~\-–RM]+$/.test(c) && /\d/.test(c) ? ' class="num"' : ""}>${inl(c)}</${tag}>`;
+  const pad = r => r.concat(Array(n - r.length).fill(""));
+  return `<div class="tbl"><table>${head ? `<thead><tr>${pad(head).map(c => td(c, "th")).join("")}</tr></thead>` : ""}<tbody>${body.map(r => `<tr>${pad(r).map(c => td(c, "td")).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+function md(s) {
+  const out = [], lines = esc(s).split(/\n/); let list = null;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*\|/.test(lines[i])) {
+      const rows = []; while (i < lines.length && /^\s*\|/.test(lines[i])) rows.push(lines[i++]); i--;
+      if (list) { out.push(`</${list}>`); list = null; }
+      out.push(table(rows)); continue;
+    }
+    const line = inl(lines[i]), m = line.match(/^\s*(?:[-*•]|(\d+)[.)])\s+(.*)/);
+    if (m) { const t = m[1] ? "ol" : "ul"; if (list !== t) { if (list) out.push(`</${list}>`); out.push(`<${t}>`); list = t; } out.push(`<li>${m[2]}</li>`); continue; }
+    if (list) { out.push(`</${list}>`); list = null; }
+    if (line.trim()) out.push(`<p>${line}</p>`); }
+  if (list) out.push(`</${list}>`); return out.join("");
+}
+function highlight(text, q) {
+  const words = [...new Set(tok(q).filter(w => w.length > 3))].map(w => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const t = esc(text); return words.length ? t.replace(new RegExp(`(${words.join("|")})`, "gi"), "<mark>$1</mark>") : t;
+}
+const scroll = () => { main.scrollTop = main.scrollHeight; };
+
+const tahun = c => ((c.penerbit || "").match(/\d{4}/) || [""])[0];
+function renderShelf() {
+  $("crops").innerHTML = crops.map(c => `<button type="button" class="crop" data-id="${esc(c.id)}" style="--c:${esc(c.warna || "#7a9a3c")}" aria-current="${c.id === cur}">${icon(c)}<span><b>${esc(c.nama)}</b><small>${esc(tahun(c))}</small></span></button>`).join("");
+}
+function emptyState(c) {
+  return `<div class="empty"><h3>Apa yang anda ingin tahu tentang ${esc(c.nama.toLowerCase())}?</h3>${c.nota ? "<p>" + esc(c.nota) + "</p>" : ""}
+   <div class="chips">${(c.cadangan || []).map(s => `<button type="button">${esc(s)}</button>`).join("")}</div></div>`;
+}
+async function select(id) {
+  const c = crops.find(x => x.id === id) || crops[0]; if (!c) return;
+  if (ctrl) ctrl.abort();
+  cur = c.id; if (location.hash.slice(1) !== c.id) try { history.replaceState(null, "", "#" + c.id); } catch {}
+  document.documentElement.style.setProperty("--acc", c.warna || "#e0b12a");
+  renderShelf(); $("crops").querySelector("[aria-current=true]")?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  $("cover").innerHTML = `${icon(c)}<div><h2>${esc(c.nama)}</h2><p>${esc(c.sumber)}${tahun(c) ? ", " + tahun(c) : ""}</p></div><button type="button" id="clear" hidden>Mula semula</button>`;
+  $("clear").addEventListener("click", clearChat);
+  qEl.placeholder = `Tanya tentang ${c.nama.toLowerCase()}…`;
+  let s = state[c.id];
+  if (!s) { s = state[c.id] = { crop: c, pages: [], idx: null, history: [], log: document.createElement("div") };
+    s.log.className = "log"; s.log.innerHTML = emptyState(c); $("logs").appendChild(s.log); }
+  for (const k in state) state[k].log.hidden = k !== c.id;
+  if (!s.idx) { statusEl.textContent = `Memuatkan buku ${c.nama}…`;
+    try { s.pages = await (await fetch(c.fail)).json(); s.idx = buildIndex(s.pages); }
+    catch { statusEl.textContent = `Gagal memuatkan buku ${c.nama}.`; return; } }
+  if (cur === c.id) { statusEl.textContent = sample === null ? "Claude tidak tersedia di sini: hanya halaman berkaitan dipaparkan." : ""; $("clear").hidden = !s.history.length && !s.log.querySelector(".msg"); }
+  scroll();
+}
+
+function add(s, role, html, cls = "") {
+  s.log.querySelector(".empty")?.remove(); if (s.crop.id === cur && $("clear")) $("clear").hidden = false;
+  const el = document.createElement("div"); el.className = "msg " + role;
+  el.innerHTML = `<div class="bub ${cls}">${html}</div>`; s.log.appendChild(el); scroll(); return el.firstChild;
+}
+function footer(bub, s, nums, q, answer) {
+  const f = document.createElement("div"); f.className = "foot";
+  f.innerHTML = (nums.length ? "Hlm. " + nums.map(n => `<button type="button" class="pg" aria-expanded="false" data-p="${n}">${n}</button>`).join("") : "")
+    + (answer ? `<button type="button" class="cp">Salin</button>` : "");
+  bub.appendChild(f);
+  f.addEventListener("click", e => {
+    const cp = e.target.closest(".cp");
+    if (cp) { navigator.clipboard?.writeText(answer).then(() => cp.textContent = "Disalin", () => cp.textContent = "Tidak dapat menyalin"); return; }
+    const b = e.target.closest(".pg"); if (!b) return;
+    const open = b.getAttribute("aria-expanded") === "true";
+    f.querySelectorAll(".pg").forEach(x => x.setAttribute("aria-expanded", "false")); bub.querySelector(".ex")?.remove();
+    if (open) return; b.setAttribute("aria-expanded", "true");
+    const pg = s.pages.find(p => p.p === +b.dataset.p), ex = document.createElement("div"); ex.className = "ex";
+    const link = s.crop.pautanHalaman ? ` · <a href="${esc(s.crop.pautanHalaman.replace("{p}", b.dataset.p))}" target="_blank" rel="noopener">Lihat halaman asal</a>` : "";
+    ex.innerHTML = `<strong>Halaman ${b.dataset.p}${pg && pg.l ? " (" + esc(pg.l) + ")" : ""}${link}</strong>${highlight(pg ? pg.t : "", q)}`; bub.appendChild(ex);
+  });
+}
+
+function systemFor(c) {
+  return `Anda pembantu soal jawab untuk tanaman ${c.nama.toUpperCase()} sahaja. Anda HANYA boleh menggunakan petikan daripada buku "${c.sumber}"${c.penerbit ? " (" + c.penerbit + ")" : ""} yang diberikan, atau yang diperoleh melalui alat cari_dalam_buku. Jangan guna pengetahuan luar atau buku lain langsung.
+Peraturan:
+1. Jika jawapan tidak terdapat dengan jelas dalam petikan buku ini (selepas mencari dengan alat jika perlu), balas TEPAT dengan ayat ini sahaja: "${MAAF}"
+2. Soalan tentang tanaman lain selain ${c.nama}, atau topik di luar kandungan buku ini, juga dibalas dengan ayat tersebut sahaja.
+3. Jawab dalam Bahasa Melayu, ringkas dan tepat, ikut fakta buku (nombor, sukatan, nama bahan, varieti). Boleh guna senarai "-" dan **tebal**.
+4. Jika maklumat berbentuk jadual dalam buku (contoh kadar dan masa pembajaan, kos, spesifikasi, senarai racun), paparkan sebagai jadual markdown: baris tajuk, kemudian baris pemisah |---|---|, kemudian satu baris bagi setiap rekod, dengan bilangan lajur yang sama pada setiap baris. Salin nilai tepat seperti dalam buku; sel yang tiada nilai dibiarkan kosong. Sertakan tajuk jadual (contoh: Jadual 18) di atasnya.
+5. Teks petikan diekstrak daripada PDF dan mungkin ada salah ejaan kecil. Dalam petikan, " | " memisahkan lajur jadual asal, dan sel yang panjang kadang-kadang terpecah ke baris seterusnya (contoh "Tanah / Mineral / (selain tanah pasir)" ialah satu sel). Fahami maksudnya tetapi jangan reka fakta.
+6. Di baris paling akhir, tulis "SUMBER:" diikuti nombor halaman yang digunakan, contoh: SUMBER: 33, 34. Jangan tulis baris SUMBER jika anda membalas dengan ayat maaf.`;
+}
+
+function busy(on) { sendBtn.textContent = on ? "Henti" : "Hantar"; sendBtn.classList.toggle("stop", on); }
+
+async function ask(q) {
+  q = q.trim(); if (!q || ctrl) return;
+  const c = crops.find(x => x.id === cur), s = state[cur]; if (!c || !s || !s.idx) return;
+  add(s, "u", md(q)); qEl.value = ""; fit();
+  const prev = s.history.filter(h => h.role === "user").slice(-1).map(h => h.content).join(" ");
+  const hits = search(s.idx, q, 6); if (prev) search(s.idx, prev + " " + q, 3).forEach(d => { if (!hits.includes(d)) hits.push(d); });
+  const bub = add(s, "a", `<span class="typing">Sedang merujuk buku ${esc(c.nama)}…</span>`);
+  if (!sample) {
+    if (!hits.length) { bub.classList.add("no"); bub.innerHTML = md(MAAF); }
+    else { bub.innerHTML = "<p>Halaman berkaitan:</p>"; footer(bub, s, hits.map(d => d.p), q, ""); }
+    return;
+  }
+  const tools = [{ name: "cari_dalam_buku", description: `Cari petikan lain dalam buku "${c.sumber}" (tanaman ${c.nama} sahaja) menggunakan kata kunci Bahasa Melayu.`,
+    inputSchema: { type: "object", properties: { kata_kunci: { type: "string" } }, required: ["kata_kunci"] },
+    execute: ({ kata_kunci }) => search(s.idx, String(kata_kunci || ""), 4).map(d => ({ halaman: d.p, teks: d.t.slice(0, 3500) })) }];
+  const ctx = hits.length ? hits.map(d => `[Halaman ${d.p}]\n${d.t}`).join("\n\n") : "(Tiada petikan sepadan ditemui. Cuba cari dengan alat menggunakan kata kunci lain.)";
+  const msgs = [...s.history.slice(-6), { role: "user", content: `${systemFor(c)}\n\n=== PETIKAN BUKU ${c.nama.toUpperCase()} ===\n${ctx}\n=== TAMAT PETIKAN ===\n\nSoalan: ${q}` }];
+  ctrl = new AbortController(); busy(true);
+  const strip = t => t.replace(/\n?SUMBER:.*$/s, "").trim();
+  try {
+    const r = await sample(msgs, { tools, cache: false, signal: ctrl.signal, onText: ({ text }) => { const t = strip(text); if (t) { bub.innerHTML = md(t); scroll(); } } });
+    let text = (r.text || "").trim();
+    const m = text.match(/SUMBER:\s*([\d,\s dan&-]+)\s*$/i);
+    const nums = m ? [...new Set((m[1].match(/\d+/g) || []).map(Number))].filter(n => s.pages.some(p => p.p === n)) : [];
+    text = strip(text);
+    const refused = !text || /tidak dapat menjawab soalan tersebut/i.test(text);
+    if (refused) text = MAAF;
+    bub.classList.toggle("no", refused); bub.innerHTML = md(text); if (!refused) footer(bub, s, nums, q, text);
+    s.history.push({ role: "user", content: q }, { role: "assistant", content: text });
+  } catch (e) {
+    bub.classList.add("no");
+    bub.innerHTML = md(e && e.name === "AbortError" || ctrl?.signal.aborted ? "Jawapan dihentikan." :
+      e && e.code === "rate_limited" ? "Terlalu banyak soalan dalam masa singkat. Sila cuba sebentar lagi." :
+      e && e.code === "not_granted" ? "Akses kepada Claude tidak dibenarkan, jadi soalan tidak dapat dijawab." : "Ralat semasa mendapatkan jawapan. Sila cuba lagi.");
+  }
+  ctrl = null; busy(false); scroll(); qEl.focus();
+}
+
+function fit() { qEl.style.height = "auto"; qEl.style.height = Math.min(qEl.scrollHeight, 150) + "px"; }
+qEl.addEventListener("input", fit);
+qEl.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(qEl.value); } });
+$("f").addEventListener("submit", e => { e.preventDefault(); if (ctrl) ctrl.abort(); else ask(qEl.value); });
+$("logs").addEventListener("click", e => { const b = e.target.closest(".chips button"); if (b) ask(b.textContent); });
+$("crops").addEventListener("click", e => { const b = e.target.closest(".crop"); if (b && b.dataset.id !== cur) select(b.dataset.id); });
+function clearChat() { const s = state[cur], c = crops.find(x => x.id === cur); if (!s || ctrl) return; s.history = []; s.log.innerHTML = emptyState(c); $("clear").hidden = true; qEl.focus(); }
+addEventListener("hashchange", () => { const id = location.hash.slice(1); if (id && id !== cur && crops.some(c => c.id === id)) select(id); });
+
+fetch("data/tanaman.json").then(r => r.json()).then(list => { crops = list; select(location.hash.slice(1)); })
+  .catch(() => { statusEl.textContent = "Gagal memuatkan senarai tanaman."; });
+// Sambungan ke Claude melalui proksi (worker/) — kunci API disimpan di pelayan, bukan di sini.
+function makeSample(url) {
+  return async (messages, { tools = [], signal, onText } = {}) => {
+    const defs = tools.map(t => ({ name: t.name, description: t.description, input_schema: t.inputSchema }));
+    const conv = messages.map(m => ({ role: m.role, content: m.content }));
+    for (let round = 0; round < 6; round++) {
+      const res = await fetch(url, { method: "POST", signal, headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: conv, tools: defs }) });
+      if (!res.ok) { const e = new Error("HTTP " + res.status); if (res.status === 429) e.code = "rate_limited"; if (res.status === 401 || res.status === 403) e.code = "not_granted"; throw e; }
+      const r = await res.json();
+      const text = (r.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+      if (r.stop_reason === "refusal") return { text: "" };
+      if (r.stop_reason !== "tool_use") { onText?.({ text }); return { text }; }
+      conv.push({ role: "assistant", content: r.content });
+      const results = [];
+      for (const b of r.content.filter(b => b.type === "tool_use")) {
+        const t = tools.find(x => x.name === b.name);
+        try { results.push({ type: "tool_result", tool_use_id: b.id, content: JSON.stringify(t ? await t.execute(b.input || {}) : { ralat: "alat tidak dikenali" }) }); }
+        catch (err) { results.push({ type: "tool_result", tool_use_id: b.id, is_error: true, content: String(err) }); }
+      }
+      conv.push({ role: "user", content: results });
+    }
+    return { text: "" };
+  };
+}
+sample = window.API_URL ? makeSample(window.API_URL) : null;
+}
+</script>
+</body>
+</html>

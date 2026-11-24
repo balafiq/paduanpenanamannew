@@ -1,0 +1,7 @@
+name = "tanya-tanaman"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+# Alamat GitHub Pages anda (tanpa / di hujung). Boleh letak beberapa, dipisahkan koma.
+ALLOWED_ORIGINS = "https://balafiq.github.io"
