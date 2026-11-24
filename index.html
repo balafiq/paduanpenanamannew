@@ -265,7 +265,7 @@ async function ask(q) {
     bub.classList.add("no");
     bub.innerHTML = md(e && e.name === "AbortError" || ctrl?.signal.aborted ? "Jawapan dihentikan." :
       e && e.code === "rate_limited" ? "Terlalu banyak soalan dalam masa singkat. Sila cuba sebentar lagi." :
-      e && e.code === "not_granted" ? "Akses kepada Claude tidak dibenarkan, jadi soalan tidak dapat dijawab." : "Ralat semasa mendapatkan jawapan. Sila cuba lagi.");
+      e && e.code === "not_granted" ? "Akses kepada Claude tidak dibenarkan, jadi soalan tidak dapat dijawab." : "Ralat semasa mendapatkan jawapan. Sila cuba lagi." + (e && e.message ? "\n\n(" + e.message + ")" : ""));
   }
   ctrl = null; busy(false); scroll(); qEl.focus();
 }
@@ -289,8 +289,8 @@ function makeSample(url) {
     for (let round = 0; round < 6; round++) {
       const res = await fetch(url, { method: "POST", signal, headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: conv, tools: defs }) });
-      if (!res.ok) { const e = new Error("HTTP " + res.status); if (res.status === 429) e.code = "rate_limited"; if (res.status === 401 || res.status === 403) e.code = "not_granted"; throw e; }
-      const r = await res.json();
+      if (!res.ok) { let d = ""; try { const j = await res.json(); d = (j.error && (j.error.message || j.error)) || ""; } catch {} const e = new Error("HTTP " + res.status + (d ? ": " + d : "")); if (res.status === 429) e.code = "rate_limited"; if (res.status === 401 || res.status === 403) e.code = "not_granted"; throw e; }
+      let r; try { r = await res.json(); } catch { throw new Error("Jawapan pelayan bukan JSON — kod Worker mungkin belum dikemas kini."); }
       const text = (r.content || []).filter(b => b.type === "text").map(b => b.text).join("");
       if (r.stop_reason === "refusal") return { text: "" };
       if (r.stop_reason !== "tool_use") { onText?.({ text }); return { text }; }
